@@ -5,9 +5,12 @@ import (
 	"log"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/service/metrics/v2"
+	"github.com/golang/protobuf/jsonpb"
 )
 
-type server struct{}
+type server struct {
+	marshaler jsonpb.Marshaler
+}
 
 var _ v2.MetricsServiceServer = &server{}
 
@@ -19,7 +22,7 @@ func New() v2.MetricsServiceServer {
 func (s *server) StreamMetrics(stream v2.MetricsService_StreamMetricsServer) error {
 	log.Println("Started stream")
 	for {
-		_, err := stream.Recv()
+		in, err := stream.Recv()
 		log.Println("Received value")
 		if err == io.EOF {
 			return nil
@@ -27,5 +30,7 @@ func (s *server) StreamMetrics(stream v2.MetricsService_StreamMetricsServer) err
 		if err != nil {
 			return err
 		}
+		str, _ := s.marshaler.MarshalToString(in)
+		log.Println(str)
 	}
 }
