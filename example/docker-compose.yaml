@@ -9,7 +9,9 @@ services:
     volumes:
     - ./envoy.yaml:/etc/envoy.yaml
   sink:
-    image: gcr.io/tetrate-internal-containers/metrics-sink-debugger:0.0.1
+    build:
+      context: ../
+      dockerfile: Dockerfile
     command: /usr/local/bin/sink
     expose:
     - "9001"
